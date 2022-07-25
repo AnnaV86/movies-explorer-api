@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const { celebrate, Joi, errors } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middleware/loggers');
+const { login, createUser } = require('./controllers/users');
 const auth = require('./middleware/auth');
 const userRouter = require('./routes/users');
 const movieRouter = require('./routes/movies');
@@ -19,6 +20,31 @@ mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
 
 app.use(express.json());
 app.use(requestLogger);
+
+// Регистрация
+app.post(
+  '/signup',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+      name: Joi.string().min(2).max(30),
+    }),
+  }),
+  createUser,
+);
+
+// Вход: проверка логина
+app.post(
+  '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+    }),
+  }),
+  login,
+);
 
 app.use(auth);
 

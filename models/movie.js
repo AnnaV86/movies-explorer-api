@@ -39,8 +39,8 @@ const movieSchema = new mongoose.Schema({
     required: true,
   },
   movieId: {
-    type: mongoose.ObjectId,
-    required: [true, 'Обязательное поле'],
+    type: String,
+    required: true,
   },
   nameRU: {
     type: String,
