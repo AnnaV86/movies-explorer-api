@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
+// const cors = require('cors');
 const { celebrate, Joi, errors } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middleware/loggers');
 const { login, createUser } = require('./controllers/users');
@@ -9,6 +10,20 @@ const userRouter = require('./routes/users');
 const movieRouter = require('./routes/movies');
 const centralError = require('./middleware/centralError');
 const NotFoundError = require('./errors/notFoundError');
+
+// const allowedCors = {
+//   origin: [
+//     'https://vidmovies.students.nomoredomains.xyz',
+//     'http://vidmovies.students.nomoredomains.xyz',
+//     'https://praktikum.tk',
+//     'http://praktikum.tk',
+//     'http://localhost:3000',
+//   ],
+//   allowedHeaders: ['Content-Type', 'Origin', 'Referer', 'Accept', 'Authorization'],
+//   preflightContinue: false,
+//   optionsSuccessStatus: 204,
+//   credentials: true,
+// };
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -20,6 +35,7 @@ mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
 
 app.use(express.json());
 app.use(requestLogger);
+// app.use('*', cors(allowedCors));
 
 // Регистрация
 app.post(
