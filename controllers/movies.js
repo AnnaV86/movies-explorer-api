@@ -6,11 +6,12 @@ const ForbiddenError = require('../errors/forbiddenError');
 const User = require('../models/user');
 
 // Возвращает все сохраненные текущим пользователем фильмы GET  /movies
-module.exports.getMovies = (req, res, next) => {
+module.exports.getMovies = async (req, res, next) => {
+  const owner = await User.findById(req.user._id);
   Movie.find({})
     .populate('owner')
     .then((result) => {
-      const sortResult = result.sort((a, b) => b.createdAt - a.createdAt);
+      const sortResult = result.filter((el) => el.owner._id.toString() === owner._id.toString());
       return res.send(sortResult);
     })
     .catch(next);

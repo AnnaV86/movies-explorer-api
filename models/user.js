@@ -1,24 +1,30 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const {
+  MESSAGE_STATUS,
+  MESSAGE_MIN_LENGTH_2,
+  MESSAGE_MIN_LENGTH_8,
+  MESSAGE_MAX_LENGTH_100,
+} = require('../constants/index');
 
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
-    required: [true, 'Обязательное поле для заполнения'],
+    required: [true, MESSAGE_STATUS],
     unique: true,
     validate: [validator.isEmail, 'Некорректный email'],
   },
   password: {
     type: String,
-    required: [true, 'Обязательное поле для заполнения'],
-    minlength: [8, 'Минимальная длина 8 символов'],
+    required: [true, MESSAGE_STATUS],
+    minlength: [8, MESSAGE_MIN_LENGTH_8],
     select: false,
   },
   name: {
     type: String,
-    minlength: [2, 'Минимальная длина 2 символа'],
-    maxlength: [30, 'Максимальная длина 30 символов'],
+    minlength: [2, MESSAGE_MIN_LENGTH_2],
+    maxlength: [100, MESSAGE_MAX_LENGTH_100],
   },
 });
 
