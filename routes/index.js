@@ -5,6 +5,7 @@ const auth = require('../middleware/auth');
 const { login, createUser } = require('../controllers/users');
 const NotFoundError = require('../errors/notFoundError');
 const { validationUserData, validationLogin } = require('../middleware/validations');
+const { MESSAGE_NONEXISTENT_RESOURCE } = require('../constants/index');
 
 // Регистрация
 router.post(
@@ -25,6 +26,6 @@ router.use(auth);
 router.use(userRouter);
 router.use(movieRouter);
 
-router.use('*', (req, res, next) => next(new NotFoundError('Запрошен не существующий ресурс')));
+router.use('*', (req, res, next) => next(new NotFoundError(MESSAGE_NONEXISTENT_RESOURCE)));
 
 module.exports = router;

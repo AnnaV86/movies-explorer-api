@@ -4,6 +4,13 @@ const NotFoundError = require('../errors/notFoundError');
 const BadRequestError = require('../errors/badRequestError');
 const ForbiddenError = require('../errors/forbiddenError');
 const User = require('../models/user');
+const {
+  VALIDATOR_ERROR,
+  MESSAGE_INCORRECT_DATA,
+  MESSAGE_NOT_FOUND_MOVIES_ID,
+  MESSAGE_FORBIDDEN_DELETE_MOVIE,
+  MOVIE_DELETED,
+} = require('../constants/index');
 
 // Возвращает все сохраненные текущим пользователем фильмы GET  /movies
 module.exports.getMovies = async (req, res, next) => {
@@ -49,10 +56,9 @@ module.exports.createMovies = async (req, res, next) => {
   })
     .then(async (movie) => res.send(movie))
     .catch((error) => {
-      if (error.name === 'ValidationError') {
-        next(new BadRequestError(`Переданы некорректные данные в полях: ${messagesError(error)}`));
-      }
-      next(error);
+      if (error.name === VALIDATOR_ERROR) {
+        next(new BadRequestError(`${MESSAGE_INCORRECT_DATA} ${messagesError(error)}`));
+      } else next(error);
     });
 };
 
@@ -61,12 +67,12 @@ module.exports.deleteMovies = (req, res, next) => {
   Movie.findById(req.params._id)
     .then((movie) => {
       if (!movie) {
-        throw new NotFoundError('Фильм с указанным _id не найден.');
+        throw new NotFoundError(MESSAGE_NOT_FOUND_MOVIES_ID);
       } else if (String(movie.owner._id) !== req.user._id) {
-        throw new ForbiddenError('Запрет на удаление чужого фильма.');
+        throw new ForbiddenError(MESSAGE_FORBIDDEN_DELETE_MOVIE);
       } else {
-        movie.remove()
-          .then(() => res.status(200).send({ message: 'Фильм удалён' }));
+        return movie.remove()
+          .then(() => res.send({ message: MOVIE_DELETED }));
       }
     }).catch(next);
 };

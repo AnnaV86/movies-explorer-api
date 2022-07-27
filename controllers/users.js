@@ -8,6 +8,15 @@ const UnauthorizedError = require('../errors/unauthorizedError');
 const BadRequestError = require('../errors/badRequestError');
 const ConflictError = require('../errors/conflictError');
 const { messagesError } = require('../utils/messagesError');
+const {
+  MESSAGE_INCORRECT_EMAIL_OR_PASSWORD,
+  MESSAGE_NOT_FOUND_USER_ID,
+  MESSAGE_INCORRECT_DATA,
+  MESSAGE_CONFLICT_EMAIL,
+  MESSAGE_NOT_FOUND_USER_THIS_ID,
+  VALIDATOR_ERROR,
+  LOGIN_COMPLETED,
+} = require('../constants/index');
 
 // Контроллер login
 module.exports.login = (req, res, next) => {
@@ -20,10 +29,9 @@ module.exports.login = (req, res, next) => {
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
         { expiresIn: '7d' },
       );
-      res.status(200)
-        .send({ message: 'Вход выполнен', token });
+      res.send({ message: LOGIN_COMPLETED, token });
     })
-    .catch(() => next(new UnauthorizedError('Неправильные почта или пароль')));
+    .catch(() => next(new UnauthorizedError(MESSAGE_INCORRECT_EMAIL_OR_PASSWORD)));
 };
 
 // Получение информации о пользователе GET users/me
@@ -31,9 +39,9 @@ module.exports.getProfile = (req, res, next) => User
   .findById(req.user._id)
   .then((user) => {
     if (!user) {
-      throw new NotFoundError('Нет пользователя с таким id');
+      throw new NotFoundError(MESSAGE_NOT_FOUND_USER_ID);
     }
-    res.status(200).send(user);
+    res.send(user);
   })
   .catch(next);
 
@@ -49,19 +57,17 @@ module.exports.createUser = (req, res, next) => {
       name: user.name, _id: user._id, email: user.email,
     }))
     .catch((error) => {
-      if (error.name === 'ValidationError') {
-        next(new BadRequestError(`Переданы некорректные данные в полях: ${messagesError(error)}`));
+      if (error.name === VALIDATOR_ERROR) {
+        next(new BadRequestError(`${MESSAGE_INCORRECT_DATA} ${messagesError(error)}`));
       } else if (error.code === 11000) {
-        next(new ConflictError('Пользователем с данным email уже зарегистрирован'));
-      }
-      next(error);
+        next(new ConflictError(MESSAGE_CONFLICT_EMAIL));
+      } else next(error);
     });
 };
 
 // Обновляет информацию о пользователе PATCH users/me (email и имя)
 module.exports.updateProfile = (req, res, next) => {
   const { name, email } = req.body;
-
   User.findByIdAndUpdate(
     req.user._id,
     { name, email },
@@ -69,14 +75,15 @@ module.exports.updateProfile = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь по указанному id не найден');
+        throw new NotFoundError(MESSAGE_NOT_FOUND_USER_THIS_ID);
       }
       res.send(user);
     })
     .catch((error) => {
-      if (error.name === 'ValidationError') {
-        next(new BadRequestError(`Переданы некорректные данные в полях: ${messagesError(error)}`));
-      }
-      next(error);
+      if (error.name === VALIDATOR_ERROR) {
+        next(new BadRequestError(`${MESSAGE_INCORRECT_DATA} ${messagesError(error)}`));
+      } else if (error.code === 11000) {
+        next(new ConflictError(MESSAGE_CONFLICT_EMAIL));
+      } else next(error);
     });
 };

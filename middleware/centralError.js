@@ -1,4 +1,4 @@
-const { INTERVAL_SERVER_ERROR } = require('../constants');
+const { INTERVAL_SERVER_ERROR, MESSAGE_INTERVAL_SERVER_ERROR } = require('../constants');
 
 module.exports = (err, req, res, next) => {
   const { statusCode = INTERVAL_SERVER_ERROR, message } = err;
@@ -6,7 +6,7 @@ module.exports = (err, req, res, next) => {
     .status(statusCode)
     .send({
       message: statusCode === INTERVAL_SERVER_ERROR
-        ? 'На сервере произошла ошибка'
+        ? MESSAGE_INTERVAL_SERVER_ERROR
         : message,
     });
   next();
