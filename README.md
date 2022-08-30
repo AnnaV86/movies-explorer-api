@@ -9,7 +9,7 @@ Backend написан с помощью фреймворка Express.
 В работе также применялись такие технологии как: mongoose, cors, celebrate, bcryptjs, express-winston, jsonwebtoken, validator и многие другие
 
 ### Адрес домена сервера
-https://api.vidmovies.students.nomoredomains.xyz
+https://api.vidmovies.students.nomoredomains.xyz  * Виртуальная машина на данный момент отключена
 
 ### Публичный IP-адрес сервера
 51.250.79.74
